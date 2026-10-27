@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Password Hashing Benchmark | Cost-Normalized Extension of Skanda et al.</title>
+  <meta name="description" content="Cost-Normalized Comparison of Password Hashing Algorithms and the Effect of Salting on Rainbow-Table Attacks.">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <!-- Top Navigation & Header -->
+  <header class="app-header">
+    <div class="header-container">
+      <div class="brand-wrapper">
+        <div class="brand-icon">#</div>
+        <div>
+          <h1 class="brand-title">Password Hash Benchmark</h1>
+          <div class="brand-subtitle">Cost-Normalized Analysis &bull; Extension of Skanda et al. (IEEE NKCon 2022)</div>
+        </div>
+      </div>
+
+      <div class="header-actions">
+        <button id="themeToggle" class="toggle-btn" title="Toggle dark or light theme">
+          🌙 Dark Mode
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Navigation Tabs (Streamlined) -->
+  <nav class="nav-tabs" aria-label="Sections">
+    <button class="tab-btn active" data-tab="tab-hashlab">Live Hash Lab</button>
+    <button class="tab-btn" data-tab="tab-rainbow">Rainbow Table Attack</button>
+    <button class="tab-btn" data-tab="tab-benchmark">Guess-Rate Benchmark</button>
+    <button class="tab-btn" data-tab="tab-attack">Attack &amp; Exposure Curves</button>
+    <button class="tab-btn" data-tab="tab-bcrypt">Bcrypt 72-Byte Limit</button>
+  </nav>
+
+  <!-- Main Content Area -->
+  <main class="main-container">
+
+    <!-- ===================================================================
+         TAB 1: Live Hash Lab (Default Active)
+         =================================================================== -->
+    <section id="tab-hashlab" class="tab-panel active">
+      <div class="card">
+        <h2 class="card-title">Live Password Hashing &amp; Salt Inspector</h2>
+        <p class="card-desc">Type a password below to compute hashes across all six algorithms with live latency measurement. Re-hashing shows salt variation on salted schemes.</p>
+
+        <div class="input-group">
+          <input type="text" id="hashPasswordInput" class="text-input" value="Password123!" placeholder="Enter password to hash...">
+          <button id="hashSubmitBtn" class="btn-primary">Hash Password (Inspect Output)</button>
+        </div>
+
+        <div id="hashCardsContainer" class="hash-grid">
+          <!-- Populated dynamically by app.js -->
+        </div>
+      </div>
+    </section>
+
+    <!-- ===================================================================
+         TAB 2: Rainbow Table Attack
+         =================================================================== -->
+    <section id="tab-rainbow" class="tab-panel">
+      <div class="card">
+        <h2 class="card-title">Precomputed Lookup (Rainbow-Style) Reversal</h2>
+        <p class="card-desc">Simulates an adversary attempting to reverse credentials across 500 simulated user accounts using precomputed tables.</p>
+
+        <div class="rainbow-actions">
+          <button id="attackUnsaltedBtn" class="btn-danger">
+            ⚡ Attack Unsalted Hashes (Precomputed Table)
+          </button>
+          <button id="attackSaltedBtn" class="btn-success">
+            🛡️ Attack Salted Hashes (With Same Table)
+          </button>
+        </div>
+
+        <div class="progress-container">
+          <div id="rainbowProgressBar" class="progress-bar"></div>
+        </div>
+
+        <div id="rainbowStatusBox" style="font-size:0.95rem; margin-bottom:1.25rem; color:var(--text-secondary);">
+          Ready. Click a button above to run the attack simulation.
+        </div>
+
+        <div class="table-responsive">
+          <table>
+            <thead>
+              <tr>
+                <th>Storage Scheme</th>
+                <th>Target Accounts</th>
+                <th>Cracked Count</th>
+                <th>Success Rate</th>
+                <th>Lookup Time</th>
+                <th>Attack Mechanism</th>
+              </tr>
+            </thead>
+            <tbody id="rainbowResultsTableBody">
+              <tr>
+                <td colspan="6" style="text-align:center; color:var(--text-muted);">
+                  Click "Attack Unsalted Hashes" or "Attack Salted Hashes" above to run live simulation.
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div style="margin-top:1.5rem;">
+          <h3 style="font-size:1.05rem; margin-bottom:0.75rem;">Empirical Crack Outcome: Unsalted vs. Salted (1,000 Accounts)</h3>
+          <div class="chart-wrapper">
+            <img src="/results/rainbow_attack_pie.png" alt="Unsalted vs Salted Attack Outcome Pie Chart" style="max-height:380px; object-fit:contain;">
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===================================================================
+         TAB 3: Guess-Rate Benchmark
+         =================================================================== -->
+    <section id="tab-benchmark" class="tab-panel">
+      <div class="card">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.75rem; flex-wrap:wrap; gap:0.5rem;">
+          <h2 class="card-title" style="margin-bottom:0;">Attacker Guess Rate Benchmark</h2>
+          <span id="systemInfoBadge" class="badge badge-info">Detecting System...</span>
+        </div>
+        <p class="card-desc">Single-core attacker guessing speed under ~100 ms defender cost normalization.</p>
+
+        <div class="chart-wrapper">
+          <img src="/results/guess_rate_comparison.png" alt="Log-Scale Guess Rate Comparison Chart">
+        </div>
+
+        <h3 style="font-size:1.05rem; margin:1.5rem 0 0.75rem;">Summary Table (Defender Cost-Normalized)</h3>
+        <div class="table-responsive">
+          <table>
+            <thead>
+              <tr>
+                <th>Algorithm</th>
+                <th>Measured Latency</th>
+                <th>Attacker Guesses/sec</th>
+                <th>Slowdown vs MD5</th>
+                <th>Memory Hardness</th>
+                <th>Calibrated Parameters</th>
+              </tr>
+            </thead>
+            <tbody id="benchmarkTableBody">
+              <tr>
+                <td colspan="6" style="text-align:center;">Loading benchmark data from results.json...</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div style="margin-top:1.5rem;">
+          <h3 style="font-size:1.05rem; margin-bottom:0.75rem;">Architectural Memory Allocation Profile</h3>
+          <div class="chart-wrapper">
+            <img src="/results/memory_profile_chart.png" alt="Memory Hardness Comparison Chart" style="max-height:380px; object-fit:contain;">
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===================================================================
+         TAB 4: Attack & Exposure Curves
+         =================================================================== -->
+    <section id="tab-attack" class="tab-panel">
+      <div class="card">
+        <h2 class="card-title">Credential Exposure vs. Attacker Time</h2>
+        <p class="card-desc">Cumulative percentage of 220 sampled user accounts cracked as attacker compute time increases.</p>
+
+        <div class="chart-wrapper">
+          <img src="/results/attack_curve_comparison.png" alt="Percentage Cracked vs Attacker Time">
+        </div>
+
+        <h3 style="font-size:1.05rem; margin:1.5rem 0 0.75rem;">Exposure Milestones Over Time</h3>
+        <div class="table-responsive">
+          <table>
+            <thead>
+              <tr>
+                <th>Algorithm</th>
+                <th>After 1 Second</th>
+                <th>After 1 Hour</th>
+                <th>After 1 Day</th>
+                <th>After 1 Year</th>
+                <th>Max Recoverable (Dictionary Cap)</th>
+              </tr>
+            </thead>
+            <tbody id="milestonesTableBody">
+              <tr>
+                <td colspan="6" style="text-align:center;">Loading exposure milestone data...</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===================================================================
+         TAB 5: Bcrypt 72-Byte Limit
+         =================================================================== -->
+    <section id="tab-bcrypt" class="tab-panel">
+      <div class="card">
+        <h2 class="card-title">Bcrypt 72-Byte Truncation Edge Case</h2>
+        <p class="card-desc">Analysis of the 72-byte ceiling in Blowfish-based bcrypt implementations and OWASP mitigation.</p>
+
+        <div style="background:var(--bg-surface-elevated); padding:1.25rem; border-radius:var(--radius-md); border:1px solid var(--border-color); margin-bottom:1.25rem;">
+          <h3 style="font-size:1rem; margin-bottom:0.5rem;">Collision Mechanism:</h3>
+          <p style="font-size:0.9rem; margin-bottom:0.75rem;">
+            Two distinct passwords sharing the first 72 bytes:
+          </p>
+          <pre style="background:var(--bg-surface); padding:0.75rem; border-radius:var(--radius-sm); border:1px solid var(--border-color); font-size:0.8rem; overflow-x:auto;">
+P1: "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA_Secret1" (80 bytes)
+P2: "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA_Secret2" (80 bytes)
+          </pre>
+          <p style="font-size:0.9rem; margin-top:0.75rem; color:var(--text-secondary);">
+            Under legacy OpenBSD bcrypt truncation, bytes after index 72 are discarded. Consequently, <code>bcrypt_hash(P1) == bcrypt_hash(P2)</code>, yielding an unintended password collision.
+          </p>
+        </div>
+
+        <div class="grid-2col">
+          <div style="background:var(--accent-rose-light); border:1px solid var(--accent-rose); padding:1.25rem; border-radius:var(--radius-md);">
+            <h4 style="color:var(--accent-rose); margin-bottom:0.4rem;">Modern Library Protection</h4>
+            <p style="font-size:0.875rem; color:var(--text-primary);">
+              Modern <code>bcrypt</code> (v4.0+) raises an explicit <code>ValueError: password cannot be longer than 72 bytes</code> to alert developers.
+            </p>
+          </div>
+
+          <div style="background:var(--accent-green-light); border:1px solid var(--accent-green); padding:1.25rem; border-radius:var(--radius-md);">
+            <h4 style="color:var(--accent-green); margin-bottom:0.4rem;">OWASP Recommendation</h4>
+            <p style="font-size:0.875rem; color:var(--text-primary);">
+              Pre-hash with SHA-256 before bcrypt (<code>bcrypt(SHA256(password))</code>), or migrate to <strong>Argon2id</strong> (supports passwords up to $2^{32}-1$ bytes).
+            </p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <footer style="text-align:center; padding:1.75rem 1rem; color:var(--text-muted); font-size:0.85rem; border-top:1px solid var(--border-color); background:var(--bg-surface);">
+    <p>Password Hashing Benchmark Suite &bull; Cost-Normalized Extension of Skanda et al. (IEEE NKCon 2022)</p>
+  </footer>
+
+  <script src="app.js"></script>
+</body>
+</html>
